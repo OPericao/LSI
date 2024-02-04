@@ -1,0 +1,75 @@
+Comandos utiles:
+	systemd-analyze blame
+	ls /etc/rc*.d -> enseña que se inicia a cada nivel de arranque // https://serverfault.com/questions/472030/how-to-list-services-daemons-started-at-boot-and-check-their-loading-order
+	dpkg --list -> lista los paquetes ya instalados
+	systemctl list-units --type=target
+	systemclt list-units --type=target -all -> mostra os targets instalados
+	systemclt get-default -> mostra o ultimo que se inicia ao arrancar
+	systemclt isolate xxxx -> salta ao target xxxx
+
+	Flag -> --with-dependencies
+
+Dependencias: https://www.debian.org/doc/manuals/debian-faq/pkg-basics.en.html#depends
+
+Gestionar paquetes: https://www.debian.org/doc/manuals/debian-faq/pkgtools.en.html#pkgprogs
+
+Targets: 	https://www.youtube.com/watch?v=4xO-_cQaEfA
+	https://www.youtube.com/watch?v=10Ijrc9k71g
+
+graphical.target creo que é inutil, é para ter unha interfaz grafica ao arrancar a maquina para logear usuarios,
+aqui non hai nin interfaz grafica nin 3 medias merdas, podese sustituir por multi-user.target en principio
+
+
+Todo esto de abaixo creo que non son nin targets 💀
+
+systemd timesyncd.service -> sincroniza el reloj con el de la red
+
+apt daily upgrade.timer	| Ver: https://askubuntu.com/questions/1038923/do-i-really-need-apt-daily-service-and-apt-daily-upgrade-service
+apt daily			|
+
+saned
+
+unattended upgrades
+
+plymouth
+
+anacron
+
+alsa utils
+
+hwclock
+
+hai varios libreoffice
+
+Crear servicios: https://www.redeszone.net/tutoriales/servidores/administrar-servicios-linux-systemd/
+-------------------------------------------------
+Despois de eliminar:
+
+graphic	-> 31s
+anacron
+
+apt-daily-upgrade	-> 34s
+apt-daily
+
+timers -> 30s
+
+bluetooth -> 28s
+
+unattended-upgrades -> 30s
+apparmor
+
+reenable apparmor -> 26s
+
+systemd-journal-flush.service -> 29s (ahora hai que ter cojones a reenablear esto)
+
+accounts-daemon -> (estou acojonado) -> 32s
+//https://forums.debian.net/viewtopic.php?t=129556
+
+reenable accounts-daemon -> 28s
+(seguramente por dependencias, revisar)
+
+systemctl set-default multi-user.target -> 18s
+
+systemctl disable accounts-daemon -> 12s
+
+systemctl disable bluetooth.service -> 18s

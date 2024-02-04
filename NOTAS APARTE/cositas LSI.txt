@@ -1,0 +1,1653 @@
+13/09/2023
+Una vulnerabilidad explotada se convierte en un ataque
+-------------------------------------------------------------------------------------------
+18/09/2023
+Categorias de ataques:
+	-Interrupcion: se daña algun sistema y deja de funcionar
+		+Detección inmediata:
+			ºIDS (sistema de deteccion de intrusiones)
+			ºIPS (sistema de prevencion de intrusiones) -> Pueden ser de red o de host
+				-SNORT
+				-SURICATA
+			ºSensores
+
+Paso de ubicar IDS y IPS en el punto de entrada a sensores de IPS en distintas redes ("podriamos estarnos perdiendo muchas fiestas")
+
+Puedes montar un IPS en un LINUX a nivel de red pero lo normal es montarlo en una zona de transito de la red
+
+Los IPS a nivel de host analizan los "logs" de los procesos de la maquina
+
+Ejemplos:
+	-Robo de CPU
+	-Actos vandalicos contra puntos de control de entrada a edificios
+	-Borrados de bases de datos
+	-Vandalismo contra el software
+	-Fallos de SO y aplicaciones
+
+Vulnerabilidades que explotadas generan una interrupcion
+
+DoS / DDos       -> Usados en competencia entre empresas
+        (botnets)
+
+Dos tipos de DoS:
+	-Logicos -> viene dado por una vulnerabilidad
+		+Se parchea la vulnerabilidad
+
+	-Inundacion -> Suelen ser DDos, no suelen explotar las vulneabilidades. Miles de maquinas se conectan simultaneamente
+			para freir un servidor
+		+Muy dificil de protegerse -> 	Traffic Shaping (control de ancho de banda)
+				           ->	QoS (calidad de servicio)
+
+Proxy (los softwares mas habituales para montar un proxy son apache y squid):
+	Se monta sobre los firewalls, las maquinas se conectan al servidor a través del proxy, se puede montar un proxy sobre
+	una base de datos de reputación para decidir a que sitios pueden o no conectarse las máquinas.
+	Todas las conexiones salen con la IP del proxy.
+	"Se acabó la barra libre que después os vais de copas y me cogeis infecciones"
+	
+FirewallQos -> report blog LSI sobre la gestion de ancho de banda
+
+A las maquinas de dudosa procedencia pero no reconocidas como maliciosas aun, se les reduce el ancho de banda
+
+Palabreja -> redundancia -> tener 2 de algo para cuando te falla 1
+
+La fibra optica va por autopista, debajo de las lineas azules
+--------------------------------------------------------------------------------------------------------
+18/09/2023
+PRACTICAS:
+
+En la defensa te pedirán ficheros y que hacen las lineas
+
+a)
+Resolvecoms -> DNS
+Sources.list -> actualizaciones del sistema
+
+b) Actualizar debian 10 a debian 12 (no fiarse de los bogs de los chinos)
+
+c) Levantar SO con ventanas o sin ventanas -> Targets
+Identificar target actual y targets disponibles de la version, averigüar target minimo que nos hace falta
+Se necesita poder acceder a internet y el uso de mas de un usuario del sistema.
+Poner target minimo por defecto.
+
+Services -> servicios que se ejecutaran al iniciar el sistema
+Units -> scripts que generan algo
+
+d)Optimizacion
+Calcular tiempo de arranque de una maquina -> 15, 16, 17s sin optimizar
+Podado de servicios -> cargarse lo que no voy a utilizar
+Tiempo de botado completo < 10s (lo minimo son 3.5s, 1 alumno por curso, un chupapollas, pone la misma nota)
+
+e) Comprobar si fallan servicios o no (si el tiempo de arranque son 50s, es por esto)
+
+f) Interfaz ens34 (es una puerta trasera) (ifconfig)
+en la ens33 será 10.11.48.x -> ens34 - 10.11.50.x
+La segunda interfaz fisica tiene que tener una interfaz logica tambien
+
+Debian.org para buscar estas cosas
+
+g) Configurar una ruta estatica
+Salto de una interfaz a otra. 
+Comando traceroute para comprobar.
+
+2 formas de configurar
+	Directamente en el fichero de configuracion
+	Por comando (este es el mejor porque es mas facil para hacerlo el dia de la practica)
+
+h) La parte jodida (Podado de arranque)
+Tiempo de arranque
+Tiempo de 
+
+Hai servicios dependientes entre si, ojo a la hora de cargarselos
+Ejemplo de error:
+	Siempre nos cargamos Bluetooth de primero con 2 cojones. No se comprueban dependencias y te cagas encima,
+	hai 2 servicios que lo están llamando
+Otro error:
+	Hai 2 formas de reiniciar la maquina	-> Reboot (no se reinicia el kernel) -> MAL, NO SE COMPRUEBA TODO
+					-> Shutdown -r now (se reinicia todo)
+
+i) Genera un script e instalalo en la practica
+Un chaval guardaba en un fichero la fecha, interfaz e IP (necesita informacion sobre la interfaz)
+
+El script hai que meterlo en un servicio de un target lo mas arriba posible (puede que la red se inicie en el target 4 y tu
+tengas el script en el 3 y no se ejecuta, meterlo en el target minimo. Si arranca en el 4, pues el 5)
+
+Averiguar el target del que depende nuestro script y meter el script en el target minimo superior
+
+j) Identifique conexiones de red abiertas a y desde su equipo
+
+k) Monitorice en tiempo real la informacion relevante de los procesos del sistema y los recursos consumidos. Igual para las
+	conexiones de su sistema
+Comandos:
+	-top
+	-w
+	-who
+	-last
+
+
+l) Configure tcp-wrapper para permitir conexiones ssh a un determinado conjunto de IPs y denegar el resto (allow y deny)
+	Quien actua antes, allow o deny? Revisar que servicios meto. Filtrar la IP de la VPN para que te deje acceder por ella,
+	permitir su rango (por ejemplo 10.80.bla.bla o 10.81.bla.bla, no poner tampoco 10.bla.bla.bla, poco restrictivo ni tampoco
+	poner 10.80.14.bla, demasiado restrictivo) (cuidao con lo que bloqueamos, que igual en la p2 tengo que desbloquear cosas)
+	
+	Servicios que usan wrapper:
+		-ssh
+		-ntp
+		-rsyslog
+
+	Parametros twist y spawn, para avisar a la persona que se quiere conectar que lo tiene prohibido y me la registra
+		en un log para que yo tambien lo sepa
+	
+	Comando para saber que cosas usan tcp-wrapper (buscar porque o calvo hijo de puta non quere dicilo e eso que o sabe)
+
+m) Usando rsyslog pruebe , tengo que guardar mis logs y los de mi compañero, de forma que no se mezclen y esten ordenadas
+	1) Los logs tienen que llegar de forma ordenada (cada maquina una carpeta con sus logs)
+	2) Pila de logs -> cuando la maquina de mi compañero no responda, se acumulan los logs hasta que la maquina vuelva
+			a funcionar (checkear debian para saber como parar un servidor de logs)
+
+https://linuxhandbook.com/syslog-guide/
+
+en /var/logs hai varios archivos syslog: (igual con auth.log y user.log)
+	-syslog -> activo actualmente
+	-syslog.1 -> siguiente para rotar la informacion
+	-syslog.2.gz -> informacion de logs antiguas (gz porque esta comprimido)
+
+logger "lo que quieras" -> guarda el mensaje en syslog
+
+cat /var/logs/syslog | grep -i "lo que quieras"
+
+journalctl -n -> visualizar los 10 ultimos logs -> si pones un numero despues de n, visualizas x ultimos logs
+journalctl -k -> mensajes del kernel
+
+journalctl _UID=x -> x siendo el id del usuario del que queremos saber los logs
+
+Gestionar logs -> https://devconnected.com/the-definitive-guide-to-centralized-logging-with-syslog-on-linux/
+
+
+n) Configurar IPv6 (6to4) y probar ping6 y ssh sobre este protocolo. El tcp-wrapper va a dejar pasar las IPv6, asi que hai que modificarlo,
+	securizar IPv6
+
+	-IPv6 solo en ens33
+	-6to4 ->	+Interfaces
+		+traduccion
+
+ens34 tiene interfaz logica y fisica (mirar que coño significan los rc-0, rc-1 y rc-4 (este ultimo es el default)
+
+Todo lo que entra en tcp-wrapper necesita implementar una libreria, preguntale al sistema que librerias necesita
+----------------------------------------------------------------------------------------------------------------------------------------------------------
+20/09/2023
+
+DWDM
+
+ERTMS -> estandar seguridad trenes
+
+GEANT
+
+CESGA -> organismo que gestiona toda la red gallega de ciencia y tecnologia. Este y los demas van a otro organismo en
+	Madrid llamado red IRIS
+
+MALTEGO para stalkear a gente
+
+BACKBONE (de una red) -> red de nodos principales (en la UDC, la facultad de informatica, económicas, arquitectura, ...)
+
+Protocolo IEEE 802.11 para protejer el cable de red de la clase de teoria
+
+Los cables de red van por el falso techo
+
+"Para hacer el bien, antes hai que saber hacer el mal"
+
+En el edificio de la esquina hai una antena (radioenlace) que se comunica con el radioenlace de ferrol,
+que tambien se conecta a su vez con otro en santiago
+
+Hai estandares T568A T568B de colores para minimizar al maximo las interferencias en los cables ethernet
+
+Hardware hacking: hacker warehouse
+
+Los ataques de intercepcion -> copia y pirateo de software (sin craqueo), sniffing de trafico de red (sin modificar)
+------------------------------------------------------------------
+25/09/2023
+Modificacion:
+	Una unidad no autorizada accede a un recurso y ademas puede modificarlo
+
+Problemas de integridad -> funcion hash
+
+Un ataque de desbordamiento de pila que tipo de ataque es?
+
+Spoofing -> Suplantacion 
+	IPv4 -> 32 bits
+	IPv6 -> 128 bits
+	MAC -> 48 bits
+
+Generacion/ Fabricacion:
+	Se insertan mensajes falsos en el sistema, ataque contra la autenticidad
+
+(tema 3, information gathering)
+
+Hosts discovery -> buscar IPs de maquinas, realizar un esquema de las maquinas de una organizacion
+IPs faciles de conseguir:
+	-Servidor web
+	-Mail exchange
+
+Port scanning -> escanear puertos de determinadas maquinas
+Fingerprinting -> conseguir informacion sobre los SO e informacion de la maquina (se aplica al port scanning)
+	-Pasivo -> buscar informacion de empresas
+	-Activo -> port scanning
+
+Footprinting -> consigue informacion de paginas webs, wikis...
+
+Google dorks -> uso de la semantica para intentar recolectar información
+
+Fases del proceso de information gathering:
+	-Fuentes publicas, wikis, redes sociales, ...
+
+OSINT -> recoleccion de informacion de fuentes abiertas, publicas
+
+Kali linux -> distro de hacking
+
+Herramientas de information gathering:
+	-Maltego
+	-Netglub
+---------------------------------------------------------------------------------------------------------
+27/09/2023
+joder ca red IRIS, informarse
+
+IP Maquinas:
+	-Mandar pings para saber que maquinas hai en la misma red (los routers filtran los pings)
+	-Traceroute -> el TTL se va incrementando router a router
+
+Es importante que en el DNS haya redudancia de servidores -> la redundancia es seguridad, pero no pueden estar
+	todos los servidores en la misma red, eso no vale pa na
+
+La diferencia entre servidores primarios y secundarios es que los primarios los tengo que mantener
+
+Los secundarios hacen una transferencia  cada cierto tiempo a los primarios, volcandoles toda la informacion
+
+Tipos de registro:
+	-A) Indica una persona con una IPv4
+	-AAAA) Registra direcciones IPv6
+	-CName) Poner alias
+	-NS) especificar servidores DNS
+	-MX) direccion de correo de un dominio
+	-PTR) resolucion inversa, dada una IP te da el nombre
+
+Herramientas para DNS:
+	-dnsenum
+	-dnsmap
+	-nslookup
+
+DNS recon para ir haciendo PTR (resolucion inversa)
+
+nmap -sL *IP*
+
+DNS cache smoofing:
+	-dnsrecon -t snoop -n x_x_x_servdns -D <fichero>
+
+Cada vez que alguien de la UDC resuelve una peticion DNS, si te la da de cache es que ya alguien entro ahi,
+con el smoofing puedes saber si alguien de la UDC ha estado usando esas paginas.
+
+Algunos servidores DNS desactivan la opcion de modo recursivo para evitar smoofing, una alternativa es fijarse en los
+tiempos de resolucion, ya que en cache tardan mucho menos que en procesar la peticion completa
+
+Aunque haya un estandar que diga que una cosa va a x puerto (por ejemplo el ssh al 22), se pueden mover, no fiarse
+-------------------------------------------------------------------------------------------------------------------------------------------
+FASE 4 -> Si veo un puerto abierto, con el HTTP puedo saber si es web. Si es correo, le hablas "correo" y responde, sabes que es correo, etc.
+-------------------------------------------------------------------------------------------------------------------------------------------
+FASE 5/6 -> fingerprinting
+-------------------------------------------------------------------------------------------------------------------------------------------
+FASE 7 -> mapa
+--------------------------------------------------------------------------------------------------------------------------------------------
+FASE 8 -> vulnerabilidades
+
+Ahora se usa nexus. Con nexus puedes programar que analice vulnerabilidades. Hai otras herramientas
+de deteccion de vulnerabilidades ( nikto, ZAP, ...), tambien tener en cuenta la CVE y NVD
+------------------------------------------------------------------------------------------------------------------------------------------
+FASE 9 -> explotacion:
+
+-Metaexploit -> herramienta para explotar las vulnerabilidades que encuentres
+-TheFatRad -> crear troyanos
+-CodalStrike
+-Shodan -> base de datos de exploits
+---------------------------------------------------------------------------------------------------------------------------------------------
+02/10/2023
+
+PAYLOADS:
+	-Single ->Ayuda a la explotacion de una vulnerabilidad
+	-Staggers -> Una vez explotada la vulnerabilidad, ayuda a establecer una conexion entre tu maquina y
+			la explotada
+	-Staces -> Una vez establecida la conexion, lanzo utilidades para hacer todo tipo de cosas
+			+Meterpreter -> eliminar logs, capturas de pantalla, modificar ficheros...
+
+searchexploit -> comando para sacar exploits (no quitarlos, para verlos)
+
+SET -> Social Engineering Tool -> permite automatizar sin apenas conocimientos distintas perrerias de ingenieria software
+
+Capa 7:
+
+WAF -> Web Application Firewalls -> firewalls en capa 7, todo el trafico http pasa por este WAF, lo analiza y detecta ataques
+	-ModSecurity -> vinculado a apache
+	-Infoguar
+	-CloudFare 
+
+Firewall -> por el pasa trafico de red y el lo filtra, para decidir eso usa capa 3 y capa 4, a veces incluso capa 2
+
+Escalado de privilegios o pivoting
+
+Ofuscacion -> busca coger un payload y reescribir el codigo para que sea menos detectable
+
+msfpayload -> permite hacer payloads
+msfencode -> es un ofuscador
+msfvenom -> integra msfpayload y msfencode
+
+portscanning -> buscar puertos que estan escuchando
+
+firewall sin control de estado -> trabaja en capa 3, 4 y decide que deja pasar o no deja pasar
+firewall con control de estado -> hace lo mismo pero a mayores comprueba el estado de las conexiones que se abren,
+				que sigan el handshake
+
+con nmap puedo mirar que puertos estan escaneados, blabla, fingerprintearlos
+
+Idle Scan:
+
+nmap -P0 -p 80 -sI xxxx IP
+
+Se usa para hacer un scan pero sin que se vea en la otra maquina
+
+P0 -> para que no despierte a la maquina a escanear
+xxxx -> maquina zombie
+IP -> ip a escanear
+
+El zombie spofea la IP, me devuelven un paquete con la IP, le mando un sin a la maquina
+Sigo unos pasos mas y vuelvo a mandar mensaje al zombie, si me devuelve un ACK incrementado en 2, es que el puerto
+	esta abierto (si el IPid se incrementa en 2 -> abierto, incrementado en 1 -> cerrado)
+
+El problema es que si tengo un firewall de control de estado me jode todo porque los paquetes van sin ACK
+
+Hai que tener cuidado al elegir las maquinas zombies (que parada me pase a sua definicion)
+
+El router al ver que le llega un paquete de una IP que no es de la red, lo descarta
+-------------------------------------------------------------------
+PRACTICAS:
+
+rsyslog -> como lo hagamos mal, en 16min se nos cae la maquina (se nos llena el disco duro)
+
+tiene que hacer la pila y que aparezcan ordenados
+
+UDP o TCP? -> si uso UDP, que no aparezca en tcp-wrapper / TPC -> añadir en tcp-wrapper (mellor TCP)
+
+Splunk -> jueguetea con ella, gambetea
+	-Subir ficheros de log y que te los geolocalice
+	-Vamos a tener alguna IP extranjera a estas alturas? esperemos que no
+	-Alguna IP privada? esperemos que si
+	-IP publica? esperemos que no
+
+Cogemos un fichero de log (el que queramos que tenga alguna IP) y la cambiamos (por ejemplo poner belgica y que me
+	pinte belgica) -> hai que poner una IP extranjera para que Splunk me geolocalice la IP
+
+NTP -> el puerto de NTP no es ni el 80 ni el 443 / no pongais los servidores de NTP, si total no hai salida
+NTPsec ->
+
+d) (este se lo ha inventado con sus santos cojones) 
+Haga un mapa de red, mira que hai en la red, puerta de enlace, maquinas, rangos, ...
+Cuidao con los pings.
+Deberiamos saber cual es el router, DNS, rango de las maquinas y a ver si hai alguna cosita mas
+Quien coexiste conmigo en la red?
+
+a) NTPsec (el dice que nos los carguemos todos y que cada uno haga de servidor del otro)
+Hai que ponerse a nosotros mismos y a nuestro compañero de servidores NTP, nos va a pedir
+que nos cambiemos y que nosotros seamos el contrario
+Se puede probar cambiando el año en el que esta el servidor para que el otro se cambie tambien
+
+b) cuidao co *.*
+
+e)http:101.48.128
+usar auth.log por ejemplo
+
+d) mapear red -> podemos juguetear con nmap
+48.1 - 48.15 -> elementos estaticos
+48.16 > -> clones (nuestras maquinas) solo pingear a su compañero
+-----------------------------------------------------------------------------------------------------------------------------------------------------
+04/10/2023
+
+OWASP -> Open Web Application Segurity P...
+	- OWASP top 10 -> documento pequeño (lo editan cada 4 años)
+	1) Broken access control -> antes del 2017, el top 1 siemre era INJECTION ->
+		-Malas identificaciones
+		-Path Traversal
+		-Permisos mal puestos
+	2) Criptographic failures -> hace referencia a aplicaciones donde hacen un mal uso de
+				los ficheros de cifrado
+	3) INJECTION -> suelen ser derivados de una mala validacion
+	    Cross-site scripting
+	4) Insecure design
+	5) Security Misconfiguration 
+		-Backets de amazon webservice abiertos
+		-Cabeceras HTTP mal formadas
+		-Mensajes de error con informacion sensibe
+		-XXE
+	6) Componentes vulnerables y fuera de fecha
+	7) Autenticacion y control de acceso
+		-Problemas de gestion de sesiones
+		-Usuarios y contraseñas comprometidas
+		-Robo de cookies
+
+Pregunta tipica:
+	-OWASP -> varias opciones de que significa
+	-Quien esta en la posicion 1 en el OWASP top 10? (no va a preguntar por las ultimas)
+
+ZAP es un analizador de vulnerabilidades de aplicaciones web
+Blind elephant tambien								
+
+
+Fingerprinting y portScanning:
+
+1º generacion se llama nivel de ASCII. Puedes conectarte por netcat a cualquier puerto abierto
+2º generacion -> TCP IP -> bombardean maquinas con diferentes SO y diferentes versiones para ver como
+			responden ante peticiones y asi identificar SOs y versiones -> Solucion, hacer que
+			mi maquina se comporte como otra modificando las respuestas
+--------------------------------------------------------------------------------------
+09/10/2023
+
+4º GENERACION:
+-Aplicacion, capa 7
+
+/proc/sys/net
+
+OFUSCACION
+
+parametro tipico que se cambia -> TTL (cada vez que pasa por un router se decrementa en 1, si llega a 0 se responde
+				con un paquete al origen)
+
+Windows 	-> TTL 128
+Linux	-> TTL 64
+
+iptables | nft -> herramienta de linux para montar un cortafuegos 
+
+ver cabecera -> lynux -head -dump http://www.blablabla.es
+
+SMTP:
+-RCPT TO -> interrogar servidores de correo electronico
+
+hping3 -c 1 -s -p 22 "IP" -> si me devuelve un ACK, en el puerto 22 hai algo, si devuelve un reset está cerrado
+
+nmap -sS -p 22,80,443,512 "IP"
+
+nmap --packet-trace -> va haciendo un debug de toda la paqueteria que envia y recibe														
+
+nmap -SA bla bla bla -> envia ACKs, lo normal es que te devuelvan un reset, por lo que sabes que ahi hai un puerto
+			(no se sabe si abierto o cerrado, pero casi se puede asegurar que ahi no hai un firewall
+			 de control de estado)
+
+OPCIONES NMAP:
+
+-PU 512,123,  ... -> escanea puertos por UDP
+
+-sP -> host discovery -> nmap -sP 10.11.48.0/24 -> envia un ICMP, un TCP sin al 443, un ACK al 80, y un ICMP
+
+-D "IPs" -> decoy scan -> escanea y a mayores spufea todas esas IPs
+
+-O "IP" -> fingerprinting de esa maquina -> te da un % de que operativo tiene esa maquina
+
+-sS -sV -> fingerprinting de servicios
+
+nmap te dice que el puerto esta:
+	-open
+	-closed -> cerrado pero está ahi, algo hai
+	-filtered -> hai un filtro que te impide llegar al puerto
+	-unfiltered -> no está filtrado pero no puede decir si esta abierto o cerrado
+	-open filtered -> no sabe si esta abierto o filtrado
+	-closed filtered -> no sabe si esta cerrado o filtrado
+
+En los tipo test caen opciones de nmap, no las mas rebuscadas pero las gordas
+-----------------------------------------------------------------------------------------------------------------
+11/10/2023
+nmap incorporó un motor de scripting al que le puedes pasar scripts en lua
+
+nbtscan
+
+la ip anterior o las 2 anteriores al dispositivo suelen ser el firewall
+
+El problema del ping es que lo mas probable es que te lo corten, por lo que no tiene respuesta
+
+Hai otras opciones:
+	-traceroute -T -> envia un sync, que siempre llega, puedes usar -T(TCP) o -U(UDP)
+		   -U
+
+Firewalls:
+	-Modo router -> un router al que se le definen listas de acceso para filtrar lo que dejas pasar 
+	-NAT -> lo mismo que el anterior pero a mayores hace natting, traduce redes internas a direccionamiento publico
+	-Transparentes -> trabajan en capa 2, no tienen IP. No se puede ver desde cualquier parte de internet
+	-De nueva generacion -> firewall en modo cluster (trabajan en paralelo)
+
+Metadatos -> herramientas de recoleccion de metadatos: creepy
+
+Spidering -> coge un servidor web, el index html y descarga todo el servidor
+Crawler -> analisis semantico y sintactico de toda esa informacion descargada
+Scrapper -> focalizado a determinadas cosas de esa informacion (proveedores con sus precios en amazon por ejemplo)
+
+Hardening -> endurecer o reforzar cosas para mejorar la seguridad
+
+lynis audit system -> genera un macroinforme de una maquina. Te da consejos para mejorar tu maquina
+
+sandbox -> entorno acotado
+---------------------------------------------------------------------------------------------------------------------
+16/10/2023
+
+PAE (physical addres extension) -> expandir la RAM para maquinas de arquitectura 32 bits para hacerlas 64 bits
+
+DEP (data execution prevention) (tambien se le llama no execute) -> controla la pila como no ejecucion, evita ataques de
+	desbordamiento de pila
+
+fichero core -> volcados de memoria, cuando un proceso peta, el kernel hace una imagen de la memoria en un fichero core
+	para que puedas analizar por que el proceso falló
+
+limits.conf: (porron de variables para poder realizar cambios y poner limites)
+	-stack -> maximo tamaño de pila
+	-cpu -> maximo tiempo de cpu que puedes usar
+	-... (dan igual las variables)
+
+/etc/pam.d/common-password: (pam -> modulo de autenticacion)
+	-puedes elegir que hash utilizar
+	-variable rounds, numero de veces que se hashea algo al autenticarte (este retardo es util para evitar crackeos
+								metiendote millones de passwords)
+	-minrounds, maxrounds -> genera un nº aleatorio entre esos 2
+	- chage -l lsi -> datos sobre tu contraseña y fechas de cambio de ella
+	- passwd -l lsi -> establece el tiempo despues del cual tienes que cambiar la contraseña
+
+pam_cracklib, pam_passwdqc, pwquality -> permiten modificar los requerimientos de las contraseñas (pedir unas mas fuertes)
+
+umask -> segun el que pongas, cuando mis usuarios creen un fichero por defecto tendran unos permisos u otros 
+(windows tiene por defecto 022, linux te pide que lo cambies a 027)
+
+/etc/profile -> configuracion global para todos los usuarios de la maquina
+$home/.profile -> configuracion solo para ese usuario
+
+Particiones -> la que mas da por el culo es la de swapping
+
+/etc/shells -> distintos shells de nuestro sistema
+
+/etc/shadow (fichero importante con mi password hasheada)
+
+LVM -> Linux Virtual Manager -> permite modificar de forma virtual el tamaño de las particiones
+
+echo 1 > /proc/sys/kernel/modules_disabled -> deshabilito el poder cargar modulos de mi kernel
+
+/etc/modprobe.d/blacklist.conf -> modulos que no le permito a mi kernel cargar
+
+USB guard -> control de acceso de dispositivos USB
+
+Todo esto era linux hardening
+
+
+OCULTACION:
+
+Si alguien va a hacer algo malo, tendra que intentar que no lo cachen
+
+NAT -> no proporciona ocultacion
+
+Para denunciar, hai que denunciar a una persona fisica, si viven 100 tios en mi casa, salen todos NATeados, no se sabe quien fue
+
+Con cualquier script en una pagina web te pueden pedir tu IP aunque te conectes con una NAT, no sirve ocultarse en un par de capas
+y ser un bocachancla en otras. De nada sirve ocultarse en capa 4, 5, 6, si voy diciendo mi IP en capa 7
+
+"Ademas de cambiar de IP a otro para hacerme pasar por el, tambien le pillo su MAC y mando pornografia infantil a la guardia civil"
+
+Tu ordenador tambien cambia la MAC en cada arranque para que no puedan saber tu IP cambiante sabiendo tu MAC fija
+
+proxy sock -> puedo mandar cosas a traves de varios proxys para que no me traceen
+
+REMOTE_ADDR -> suele ir la IP de la maquina original -> algunos proxy cuando llega a el, sustituye esta IP por la del proxy
+
+X_FORWARDED_FOR -> almacena tu IP y la de todos los proxys, no las sustituye
+
+Hai que tener cuidado de que no nos la lie un proxy, nuestros datos estan pasando por ahi, pueden snifarlos o modificarlos
+-------------------------------------------------------------------------------------------------
+PRACTICA 2:
+
+a)
+ettercap-text-only -> capturar paqueteria de compañero que incluya varias sesiones ssh -> para salir, con la q, no con control + c
+identificar cabeceras, ...
+ettercap [opciones] [target1] [target2] -> nada de /// 
+		/10.11.48.123//
+		target puede ser el puerto,... bla bla bla
+
+arp spoofing -> oneway
+	     -> remote
+
+b)
+wireshark + ettercap
+
+capturar paqueteria:
+	-pdf
+	-git
+	-png
+	-etc...
+que nos pasemos algunos de esos ficheros
+el trafico es http, no intentemos coger imagenes en una web https porque esta securizado y no se ve nada
+
+repoison_arp -> OJITOS
+
+c)
+MAC activas
+d)
+IPv7 activas
+por ejemplo ping6, nast, ip
+
+e)
+trafico saliente y entrando
+
+ettercap
+tcmp
+
+f)
+a lo mejor tiene que ver con algun flag de los anteriores apartados
+
+1) xdg-open para navegar por consola -> igual hai que tocar algo en etter.conf
+
+2) ettercap + opciones arp poisoning
+
+g)
+metaexploit
+-----------------------------------------------------------------------------------------------------------------------------
+18/10/2023
+Honey -> infraestructuras trampa -> hechas para ser atacadas y sacar informacion de posibles ataques y atacantes
+
+Proxys:
+	-Transparentes -> no da privacidad ni ocultacion
+	-Anonimos -> no usan forwarded for
+	-Alta anonimicidad -> no usan forwarded for ni otras cabeceras del estilo
+	-Ruidosos -> usan esas cabeceras pero meten ruido
+
+export http-(ou _)proxy=http://xxxx:3128
+            https
+            ftp
+
+puertos proxy tipicos-> 8080 | 8088 | 3128 -> pero se puede poner en cualquiera
+
+montar proxys http -> squid, apache
+
+proxys socks -> /etc/socks.conf:
+	direct 127.0.0.1 255.255.255.255
+	direct 10.11.48.0 255.255.254.0
+	sockd @=IP 0.0.0.0 0.0.0.0
+
+conectarse a wifis ajenas proporciona ocultacion
+
+airmon -ng -> poner targeta wifi modo monitor -> snifa todas las conexiones que van por el aire
+
+airodump -ng -> captura el trafico del aire y lo almacena en un fichero
+
+aireplay -ng -> te pueden deautenticar de la wifi para desconectarte
+
+aircrack -ng -> crackeador de handshakes, normalmente usado par WPA2
+
+ejecucion de ejemplo:
+
+airmon -ng start wlan0 -> iniciar modo monitor
+airodump -ng mon0 -> informacion de todos los puntos de acceso que tengo cerca (BSSID, canal, ESSID -> nombre, MACs conectadas)
+airodump -ng --CANAL [canal] -bssid [MAC] -w captura mon0 -> busca en el canal una mac y vuelca la informacion en el fichero captura
+aireplay -ng -0 -a [MAC] -c [MAC] mon0 -> fuerza la desconexion para que al volver a conectarse pueda pillar la informacion sobre el handshake
+	     1
+aireplay -ng -w dicc captura
+
+HANDSHAKE
+
+Punto Acceso -> ANNOUNCE -> Maquina
+
+Maquina monta un PTK
+
+PTK = PMK + ANNOUNCE(nº aleatorio que pasa PA) + SNOUNCE(nº aleatorio que genera mi maquina) + MAC(PA) + MAC(Maquina)
+
+Maquina -> SNOUNCE + MIC (MIC = Hash del PTK)
+
+PMK -> representacion de la presharedKey, es lo unico que me queda por conocer
+
+Por fuerza bruta me va generando PMKs a ver si alguno coincide
+
+Todo esto seria un intento de hackeo clasico a una wifi con WPA2
+
+medium.com -> informacion sobre esto
+
+wifite -> crackeador de wifis
+
+
+Hace años habia wifi gratis, la cagaron con el WPS
+
+WPS se basaba en un ID de 7 digitos decimales -> 10^7 combinaciones
+
+Cuando fueron a implementarlo, para verificarlo primero cotejaban los primeros 4 nºs y despues los otros 3, convirtiendo
+esos 10 millones de combinaciones en 11k -> 10^4 + 10^3
+
+Otro mecanismo de proteccion -> filtrado por MAC -> no sirve para mucho porque puede sacarte la MAC con lo de antes
+
+Herramientas curiosas -> fluxion -> suplanta un punto de acceso (manda tramas que anuncian las wifis que hai cerca):
+	Te redirige a su punto de acceso y te manda a una web en la que te pide tu presharedKey
+
+Hashcat -> god hash -> +300 funciones de hashing (crackeo)
+
+Cain y abel, john the reapper, ...
+
+En etc/shadow me encuentro lo siguiente:
+
+root: $[nº]$: [8-16 caracteres, SALT (churro enorme en base 64)]:[churro muy grande 13-no sabe nino cuantos caracteres, este es mi password salteado hasheado]:[numerines que pasa de explicarnos]
+#nº -> indica la funcion hash que se usa
+
+lsi:
+
+...
+fin
+
+HASH=SHA 512 (passw + SALT)+SALT
+
+El SALT esta para que constraseñas iguales no generen el mismo hash -> no quiero que dos contraseñas pepito me den el mismo hash
+
+cewl, crunk -> generan diccionarios para blablabla
+
+theharvester -> busca direcciones de correo electronico en un determinado dominio
+
+hashcat -> con 8 targetas graficas procesan miles de millones de hashes por segundo
+------------------------------------------------------------------------------------------------------------------------------------
+23/10/2023
+
+hash-identifier
+hash-id
+...
+
+Estas herramientas sirven para identificar hashes
+
+
+findmyhash -> busca en un repositorio de una base de datos informacion sobre un hash, si ha sido roto o no
+
+password guessing -> hai que tunear bien los diccionarios
+
+el password guessing va contra los servicios de autenticacion, son lentos. Estos ataques dejan registro en los logs
+
+uso de captchas -> evitar password guessing
+
+filtros por IP -> si intentas mucho desde una IP, se bloquea -> esto es peligroso porque puedo enviar paqueteria desde las IPs de la
+		universidad para denegarles el servicio a esas IPs
+
+filtros por usuarios -> lo mismo
+
+hai que saber cada cuantos intentos me bloquea, asi que le meto n-1 passwords -> solucion: retardos
+
+herramientas de password guessing:
+	-medusa
+	-n-cracK
+	-hydra
+
+medusa -b -> te da todos los modulos que contempla medusa para hacer ataques
+
+medusa -M ssh -q -> opciones para atacar ssh
+
+medusa -h 10.11.48.[IP compañero] -u lsi -P p.txt -M ssh -f
+
+medusa -H [fichero con muchas IPs] -U [fichero con muchos usuarios]
+
+como protegerse de los ataques de password guessing:
+	-Filtrar bien los ataques, a nivel de wrappers y firewalls
+	-Firewall -> iptables -> hash-limit, reglas para especificar que en ciertas conexiones solo dejar x conexiones por minuto
+	-fail2ban -> detecta y para ataques de password guessing 
+	-ossec -> HIPS -> sistema de prevencion de intrusion a nivel de host
+
+a veces ossec si va, lo que no va es rsyslog
+a veces los logs los metemos todos en otros ficheros que no son los ficheros de configuracion base, puedes cambiarlo en el .conf de ossec
+
+wget -r -k [servidor web] -> hace spidering del html de una pagina web
+          -l 2 -> descarga 2 niveles
+          -H -> descarga tambien externas
+
+paginas con passwords default de cacharros por ahi, aun hai muchas maquinas por ahi con los password por defecto 
+
+Hai que proteger el grub:
+	
+grub-mKpasswd-pBkdf2
+-> te pedira un password
+-> te devuelve el hash de lo que has introducido
+
+modificas el /etc/grub.d/40_custom
+-> set superuser = root
+-> password-pbKdf2 root [hash de antes]	
+
+maquina simpatica con muchos modelos de discos duros y casques de esos discos -> te da un sonido del ruido que hace el disco con ese fallo
+
+ataques tempest
+
+reballing:
+	resoldar placas
+
+reflow:
+	aplicar calor (con secador de pelo) a la placa para que volviesen a transmitir
+
+
+krack attack:
+	si cortas el 4º mensaje del handshake el cliente reestablece la contraseña. Dificil de ejecutar porque necesitas ser el punto de
+	acceso de la maquina, meterte en medio
+
+wpa3 usa dragonfly:
+	-incrementa el tamaño de la clave de cifrado
+
+
+se pueden recuperar las cosas borradas con rm, hai que hacer un borrado seguro:
+	-srm
+	-shred
+	-wipe
+	-eraser (en windows)
+	-dd if=/dir/urandom f=/dir/sdb -> si lo meto en un bucle, lleno de cosas aleatorias todo mi disco duro
+
+sfill -> borra de forma segura todo el espacio libre de un disco duro
+sswap -> borra de forma segura mi particion de swapping
+smem -> borrado seguro de la RAM
+
+DNS leaks
+
+addons de firefox -> 
+----------------------------------------------------------------------------------------------------
+PRACTICAS
+
+https://ccnadesdecero.es/que-es-ndp/ -> ndp
+
+https://youtu.be/ER9S6sI-QLI?si=5UwjH9ZgL4_Hplj1 -> dns spoofing (apache2)	
+
+h)
+MITM ipv6
+
+flag en mayusculas para ponerte en el medio en el apartado de ARPpoisoning
+
+ettercap + ndp
+
+es raro de ver
+
+lsi-udc.blogspot.com -> mirarlo (el blog de nino)
+
+i)
+arpon (dejarlo apagado porque me tira la conexion)
+que pasa en la maquina defensora para saber que me esta protegiendo
+ettercap + arp poisoning vs arpon
+
+mirar antes de tener arpon y despues, mirar que pasa en la maquina atacante y atacada, se ve en tiempo real qué pasa
+
+j)
+trilogia en ipv4
+	host discovery
+	port scanning
+	os fingerprinting
+solo al compañero
+
+k) conexiones y ancho de banda:
+	-iftap
+	-tcptrack
+	-netlogs
+
+l)
+pim pam pum
+instalar las 3 y listo
+
+m)
+
+o)
+ataque dos https
+
+mirar slowloris, su implementacion de python y perl
+
+slowHTTPTEST y apache benchmarking -> slowHTTPTEST nos va a engañar, tener cuidao con lo rojo y lo verde
+
+es una denegacion en capa 7, solo se va a caer apache, capa de aplicacion
+
+vamos al repositorio de python y perl, descargamos el codigo y ejecutamos para ver si se defiende
+
+r)
+modsecurity
+
+modevasive
+
+Hai al menos 5 modulos de apache para protegerse del dos, meter un 3º (modloris de le ha escapao, será bait?) (en studocu lo vamos a ver)
+
+Como habilitar un modulo, deshabilitarlo, saber que esta corriendo, ...
+
+Comprobar modsecurity con un ejemplo, una cosa es estar levantado y otra funcionando
+
+p)
+transferencias de zona
+gestor de contenido
+servidor de correo y estafeta -> direccion del servidor de correo
+
+q)
+password guessing y ossec
+
+usar medusa, crear un fichero con los passwords (de unos 10 por ejemplo, y uno de ellos el password real)
+
+mirar como me banea ossec y donde y como desbanearme
+y cuando me banea ossec? jugar con el cuando
+ossec va a escribir algo en algun sitio en mis ficheros de configuracion, en 2 sitios,
+uno aun no lo hemos configurado aun (el otro sera wrappers i guess)
+
+Puedo controlar a que intento baneo y cuanto me banea? Juegar con el cuando, cuando acabe de hacer el apartado
+-------------------------------------------------------------------------------------------------------------------------------------------------------------------
+25/10/2023
+
+Red tor -> anonimato y privacidad
+
+Los nodos de la red tor son maquinas como las nuestras
+
+Lo mas peligroso es ser nodo de salida
+
+Descargarse tor browser, navegar con privacidad y anonimato
+
+Onion proxy y onion routers
+
+El paquete se cifra por capas una por cada nodo, en cada nodo se descifra 1 capa gracias a la clave de sesion
+y se manda al nodo siguiente, a la vuelta cada nodo cifra el paquete con su clave de sesion y lo envia al siguiente, yo descifro
+
+Tails, proyecto interesante, sistema operativo torificado, todas las conexiones son torificadas
+
+Whonis va sobre maquinas virtuales bla bla bla
+
+Servicios ocultos de la red tor:
+	-Para meter nuestros propios servicios dentro de la red (dominio .onion con un churro de 56 caracteres base 32 antes)
+	-Los .onion solo son accesibles desde la red tor supuestamente (pero existen pajarelas para hacerlo desde fuera de red)
+
+DeepWeb -> web no indexada
+
+Todo lo que un navegador no puede indexar, es deep web
+
+Dark web -> conjunto de redes de anonimato y todos sus servicios
+
+Tor suele estar vinculado al duck duck go
+
+El churro es tan grande para que no se pueda tracear por fuerza bruta
+
+Proyectillos como secure drop, poner en contacto el mundo de la empresa con informadores, para dar informacion a la prensa
+
+Problemas de congestion red tor:
+	-Ancho de banda
+	-Alta latencia
+
+Ultima version estable (0.4.7) incluye protocolos de control de congestion, control de ventanas
+
+3 algorimos integrados en los nodos tor:
+	-Tor vegas (le hizo mucha gracia) -> se encarga de ajustar el tamaño de los nodos de las colas, viene de tcpVegas
+					(blablabla nino montouse seu propio kernel con IA hai 30 anos)
+	-Tor nola -> prediccion a futuro de como va a ir la latencia de esa conexion
+
+Con ATM consiguen mejorar el ancho de banda y bajar la latencia
+
+url http://proxy.puerto/http://proxy.puerto -> encadenar proxys a urls
+
+http://www.google.com/translate?longpain=es|en&u=[url]
+
+Quiero acceder al puerto 2128 pero solo me dejan salir por 80 y 443, el firewall me da machete
+
+Formas de saltarselo? SSH me permite forwardear puertos
+	-Montas un ssh en tu casa, cambias el puerto de 22 a 443
+	-Coges desde la maquina y ejecutas ssh [IP de casa] -p 443 -l [usuario] -L 2128:[IP]:2128
+	-Estoy abriendo una conexion ssh entre mi maquina de la UDC y mi maquina de casa y despues
+	-Si pones http://localhost:2128 -> si me conecto a mi localhost, me estoy conectando al puerto 2128 de la otra maquina
+	-Puedes poner despues de -L 10.11.48.128:2128:[IP]:2128 -> redirecciono mi ens33, si no pongo nada redirecciono localhost
+				0.0.0.0:2128:[IP]:2128 -> el que se conecte a mi 2128 se está conectando al 2128 de la IP destino
+	-En vez de hacer -l user suelo hacer otra mierda con claves publicas y privadas
+
+Forwardeo dinamico de puertos:
+	-L -> forwardeo local a puerto remoto
+	-R -> puerto remoto a puerto local
+	-D -> forwardeo dinamico
+
+Otra cosa que hacer con ssh
+	-Abrir ssh a pelo contra la maquina de casa abierto en el 443
+	-x11 forwarding me deja ejecutar tinglados en casa pero que me las enseñe en mi maquina
+	-Estoy usando mi maquina solo como una consola de mi maquina de casa que esta libre de firewall
+
+Ionine -> encapsulador de paginas web en paquetes dns
+
+En los hoteles necesitas usuario y pw para navegar, la red del hotel te deja resolver dns pero no conectarte por IP, asi que con ionine
+resuelve el dns en su maquina con ionine en casa y le devuelve la url
+---------------------------------------------------------------------------------------------------------------------------------------
+30/10/2003
+
+corkscrew -> permite saltarse los proxys http
+
+port knocking -> unar en un servicio una frecuencia de paquetes para ejecutar determinadas cosas (que mal o explicou)
+		Puedes tirar determinado puerto y mediante una secuencia de paquetes abrirlo y filtrarlo por el firewall
+		para que asi solo se abra cuando le mando esa secuencia y se vuelva a caer cuando lo cierre
+	
+	/etc/knockKd.conf:
+		[open SSH]
+		sequence= 7000, 7015, 9001
+		sqTimeout= 10
+		tcpflags=SYN
+		command= iptables -a INPUT -s %IP% -j  ACCEPT:_ sys start ssh _____
+		
+		[close SSH]
+		sequence= 6000, 6015, 9018
+		_________
+		_____________
+
+abrir -> knock x.x.x.x 7000 7015 9001 -> para mandar los paquetes
+cerrar -> knock x.x.x.x 6000 6015 9018
+
+Tambien existe el web knocking, funciona con peticiones HTTP pero es menos comun ya que la web esta pensada para dar servicio todo
+el tiempo
+
+EMPIEZA OTRO TEMA EL CALVO HIJODEPUTA
+
+INTERCEPTACION:
+
+Es una categoria de ataque
+
+Lectura recomendable -> LAN switch security what hackers know about your switch security layer 2
+
+Los ataques en capa 2 suelen ser mas bestias que los de las demas capas
+
+Sniffing:
+	-Puedo sniffar trafico seguro o no seguro
+
+Subnetting:
+	-Poblemas de rendimiento
+	-Problemas de ahorro de direccionamiento
+
+Aparecen las redes switcheadas, establecen un ancho de banda para cada maquina, ya no son redes de medio compartido, son redes
+de medio switcheado
+
+VLAN -> nos permite tener una red sin que todos los equipos esten fisicamente juntos
+
+Se configura un trunk port en los puertos de salida, tiene la flag VLAN activa y gracias a ese protocolo se distribuye a toda la red
+
+Sirve para montar una VLAN de cosas parecidas, por ejemplo de secretarias
+
+Protocolos tipicos:
+	-Trunk ports -> 802.11Q | DTP -> yersinia -> herramienta para atacar en capa 2
+	-STP -> suele estar montado en redes de tamaño medio
+		BPDU -> tramas que habla el STP. Convierte el grafo en una estructura en arbol
+	-DTP
+	-802.1Q
+	-802.1X
+	-etc
+
+
+Ataques:
+	-Swtich spoofing -> con yersinia mandas tramas con VLAN activa haciendose pasar por un switch. Si esto funciona, se tiene
+			acceso a no solo esa VLAN sino que puedes saltar de unas VLANs a otras. Me salto los firewalls porque
+			estoy en capa 2. yersinia -g para no se que grafico
+	-Double tagging -> hace lo mismo pero en vez de suplantar a un conmutador le mete un doble etiquetado, asi cuando el
+			switch quita la primera etiqueta y forwardea la trama, se resuelve la 2º etiqueta VLAN
+	-DDOS -> cuando emites un TCN, le dices al resto de nodos que empiecen a hablar para vovler a calcular el nodo raiz
+
+
+Protecciones:	
+	-Swtich spoofing -> filtrado. Configurar para que solo sean trunkeables ciertos puertos, para que solo puedan enviar y recibir
+			tramas esos puertos
+	-Root bridge guard -> si me intentan iniciar como root bridge, el conmutador lo para
+	-BPDU guard
+
+GNS3 es como packet tracer pero mejor, trabaja directamente contra la ISO
+-----------------------------------------------------------
+PRACTICAS
+
+prometeus (version 2.47)
+node.exbaker
+gafana (version 10.2.0)
+
+Abre puertos 9000, 9010, 3000 acceso vpn
+
+user -> admin
+password -> admin
+
+Hacer un bucle lanzando nmap contra cada una de las direcciones
+
+bucle:
+primera direccion del rango y lanzar nmap sobre cada ip para ver si esta levantado o no
+---------------------------------------------------------------------------------------------------------------------------
+TEORIA
+06/11/2023
+
+ARP spoofing -> puede haber redes en las que no se pueda hacer arp spoofing
+
+ICMP redirects -> alternativa cuando arp spoofing no funciona
+	-> Se hace a las maquinas, no al router, por lo que pillas el trafico cuando sale de la maquina pero
+		al volver pasa directamente del router a la maquina, sin pasar por ti
+	-> ettercap blabla -M icmp:[MAC]/[IP] /[Mi IP]//
+	-> proc/sys/net/ipv4/ conf/all/acept_redirect -> por defecto a 1, significa que acepto icmp redirect
+	-> misma ruta/secure_redirect -> acepto icmp redirect solo de routers conocidos por mi tabla de routing
+	-> misma ruta/send_redirect -> configurar si mi maquina puede o no mandar icmp redirect
+	-> con comandos puedes cambiar las variables, despues le das a systemctl -p
+	-> Si tengo activado PATH ADDRESSING, puedo especificar la ruta que quiero para mis paquetes
+
+DHCP spoofing -> ettercap blabla -Tq -M dhcp:10.11.48.10-25,31/255.255.255.254// la ip de un resolver DNS ///
+	-> Tambien es hard MITM, la paqueteria de vuelta pasa directamente del router a la maquina
+
+Securizar DHCP -> DHCP snooping -> solo acepta paquetes de DHCP en 1 puerto, el conmutador no deja meter paquetes por otros puertos
+
+Un conmutador tiene registradas las MACs que se conectaron a cada puerto, la gestion de asignacion de puertos a MACs es casi siempre
+dinamica.
+
+Port stealing -> robo puerto, snifo, devuelvo puerto, forwardeo
+	-> ettercap blabla -M port:remote:tree /___.x // -> el parametro tree es para ponerte a ti como receptor del floodeo al puerto,
+							para que nadie vea esos paquetes
+
+NDP -> va por ICMP, no tiene broadcast ni arp (suele caer en examen)
+
+DNS spoofing -> xa o fixen todo -> es muy inseguro de la forma en que lo usamos la mayoria, no se cifra el trafico, no se autentica ni el 
+		servidor ni el cliente, muchas veces va por UDP
+
+DNS sec -> te da autenticacion, integridad, pero no cifrado
+
+DoT -> DNS Over TLS -> para securizar algo mas al DNS, cifra las conexiones
+
+Evilgrade
+
+/proc/sys/net/ipv4/neigh/ens33/gc_stile_time 60 -> las entradas de la arp sin actividad en los ultimos 60s, se dropean
+
+Port scanning y port mirroring -> si tengo 
+------------------------------------------------------------------------------------------------------------------------------------------
+08/11/2023
+
+Tipos de port trunk de asociacion
+
+mode	0 -> Round robin
+	1 -> active-backup -> 1 interface funcionando y otro de backup, sin funcionar
+	2 -> balance XOR -> decide la interface de red realizando una funcion XOR entre MAC origen y destino y % nº interfaces
+	3 -> broadcast -> envia todos los paquetes por todos los interfaces de red
+	4 -> 802.3ad
+	5 -> balanceo de carga de transmision adaptable -> manda por el interface con menos carga
+	6 -> balance ALB -> balanceo tanto en envio como en recepcion. Cuando recibe peticiones ARP para dar MACs va
+		resolviendo con el interface con menos carga	
+
+Esto se hace con ifenslave
+#echo bounding >> /etc/modules -> carga el modulo cada vez que rebote la maquina
+
+#modprobe bounding -> carga el modulo en esta sesion
+
+/etc/network/interfaces
+
+inet bond0 einet static
+address 10.11.48.128
+blablabla
+slaves ens33 ens34 6to4
+load_module 0
+
+Cuando esté activo, las peticiones a esa IP se gestinarán por todas las interfaces cargadas segun el modo elegido
+
+
+DHCP snooping -> limita las peticiones DHCP al propio puerto DHCP, si me lo hacen a otro puerto, se lo tiro
+
+
+Port security -> permite definir restricciones de MACs
+
+#switch port-security 4 -> permite 4 MACs
+
+Cuando se activa en 1 puerto, por defecto solo permite 1 MAC y en modo shutdown, si varias MACs intentan entrar,
+	me dropea los paquetes y me manda un SNMP y un DISABLE
+
+#switch port-security mac-address [MAC] 
+
+#switch port-security violation protect
+			 restrict
+
+TAP (Test Access Ports) -> sistema pasivo
+
+Aunque lo apague no corta el flujo
+
+
+Firewalls trabajan desde capa 2 a capa 7, tambien cubren a los hipervisores. Incluyen sus propios sistemas de prevencion de intrusiones.
+	Estan vinculados a los sistemas de autenticacion. Coordinan y pueden analizar todo el trafico en busqueda de infecciones,
+	malware, trojanos, exploits, ... Estos firewalls trabajan en cluster normalmente. Muchas veces este firewall esta vinculado a que
+	no te dejan establecer conexiones seguras de fuera a dentro, para que asi el firewall pueda analizar todo el trafico, sino no puede
+	hacer nada con el trafico cifrado
+
+Hipervisores, KEKW
+
+Que pasa si me atacan un hipervisor? -> nos han jodido todo, ahi corren todas las maquinas visualizadas en mi organizacion
+
+Un hipervisor puede migrar una maquina virtual de hardware
+
+Empresas -> palo alto, checkpoint, cisco, ...
+
+Cesga usa apache hadoop
+
+Tinglado SOC -> 
+	-SIEM (logs)
+	-EDRS (agentes, securizar maquinas finales)
+	-NDR (tags, cogen el trafico de red y lo trituran)
+
+
+SORBS -> Las estafetas de correo electronico estan registradas en SORBS al 99%
+
+MITM -> tambien se puede hacer a una conexion HTTPS -> sslstrip / sslstrip2
+	-Inyeccion de certificado -> cuando el servidor le envia el certificado, yo lo paro y me meto uno mio
+	-sslstrip -> te pones en medio, cuando el cliente le envia el certificado, yo lo paro y soy yo el que abre la conexion
+
+Los servidores web montaron un estandar, HSTS, evita los problemas de sslstrip
+La primera vez que te conectas al servidor te manda una cadena HSTS con un campo age de 1 año minimo. Siempre que me conecte
+a ese servidor con esa cadena, me asegura que la conexion es HTTPS, si es HTTP, corta. El unico problema es esa primera conexion, pero
+si nadie esta en medio en esa 1º conexion, tengo minimo 1 año de conexion https garantizada
+
+sslstrip2 -> si te estan utilizando HSTS y eres capaz de interceptar paquetes NTP, los usan para modificar el token HSTS del age y que te expire
+
+Las maquinas no deben correr protocoles de routing -> nada bueno
+Las maquinas no hacen IP forwarding -> nada bueno
+Las maquinas no deben aceptar ICP-redirects -> nada bueno
+------------------------------------------------------------------------------------------------------------------------------------------------
+13/11/2023
+
+Bettercap y MITMF
+
+#ngrep -d ens33 -x _______
+
+SIPEJACKING -> robo de sesiones mediante cookies de autenticacion -> SNIFFIN, XSS, ...
+
+Cookies 	-> Autenticacion
+ 	-> Traceado
+	-> Configuracion de perfiles
+
+Document.cookie = "[String]" -> fecha de caducidad, HTTP/HTTPS, información, ...
+
+HTML5 	-> webstorage -> solo para esa sesion	
+	-> localstorage -> persistente en el tiempo
+
+HTML6	-> ya veremos lo que hai
+
+Cookies persistentes, supercookies, zombie cookies,*cookies
+
+evercookie -> framework que trabaja con cookies persistentes
+
+HSPS
+--------------------------------------------------------------------------------------------------------------------
+DoS / DDoS -> INTERRUPCION
+
+DDoS -> botnets
+
+DoS 	-> Logico -> producido por una vulnerabilidad -> me protejo parcheando la vulnerabilidad
+	-> Inundacion -> mucha carga a un aplicativo y te lo tumba
+
+Es muy dificil defenderse de DDoS, una opcion es clusterizar mi servidor
+
+Factor de amplifiacion -> cuanto amplifico si quiero inundar la maquina con 1 paquete
+	-> Si mando un broadcast en una red con 150 maquinas y todas responden, factor de amplificacion = 150
+
+DDoS	-> directos -> slowhttptest -> ip origen / ip a inundar
+	-> reflectivo -> inyecto paquetes con -> ip origen / otra maquinas / ip a inundar -> hace a otras maquinas hacer el ataque
+		-> se pueden controlar con un firewall con control de estado
+		-> UDP  no tiene control de estado, que hacemos? -> se puede implementar en el firewall una especie de control
+			de estado -> la primera vez aue ve un paquete de un puerto, lo marca como si fuera un sync
+
+NO OLVIDARSE DE UDP EN LA P3 EN NUESTRO FIREWALL DE ESTADOS
+
+IP spoofing -> desde todas las redes spoofeables se puede hacer una inundacion
+
+Un router no te deja mandar paquetes a direcciones de broadcast de otras redes
+
+/proxys/sys/net/ipv4/icmp_echo_blablabla_broadcast
+		/icmp_echo_ignore_all -> si lo pones a 1 no responde a ping
+		/rp_filter -> por defecto a 0, si lo activas, si te entra un paquete por una interface de red verifica que
+				sea accesible por esa interface de red
+
+Inyeccion de paquetes 	-> hping3
+			-> scapy
+			-> packit
+
+Los DDoS suelen producirse en vacaciones -> verano e invierno
+
+BotNets	-> redes de bots, son maquinas infectadas por una agente de esa botnet
+	-> Se comercializan (competencia empresarial, ...)
+
+Un profesor actual la facultad de informatica -> contrataba unha botnet e atacaba a universidad mentras traballaba para nino
+NO ES PROFESOR DE LSI, POR ENCIMA DEL CADAVER DE NINO
+
+Me está haciendo la cama -> tener al enemigo dentro
+
+Si nino fuera alumno lo encontraba -> information gathering, analizar el pasado laboral del profesor y los años en que trabajaba
+
+SYN FLOOD -> TCB 	-> cola en que cada entrada tiene montonazo de informacion sobre las conexiones que tiene abierta tu maquina
+		-> se busca llenar esta cola para que no puedas abrir mas conexiones
+		-> ficherito /proxy/sys/net/ipv4/tcp_max_sync_backlog -> por defecto a 128, el acceso es secuencial, si es muy grande
+			el numero ya yo mismo me hago la DoS
+
+/proc/sys/net/ipv4/tcp_synack_retnes -> 5 -> es algo del timeout
+
+TCP SYN COOKIES -> suele estar desactivado -> si en algun momento detectas que te estan haciendo inundacion de SYN lo activas
+
+SYN PROXY -> todas las conexiones entre las maquinas de mi empresa e internet, todo lo intercepta un equipo llamado SYN PROXY que
+		es el que hace el handshake
+
+SYN CACHE -> si lo activas, te va a crear una tabla hash con la informacion minima basica necesaria para manejar las conexiones
+
+TBC guarda mucha mierda, SYN CACHE menos
+
+udpflood
+
+Si spoofeo la maquina de practicas y quito IP forwarding, estais todos muertos, no hai SSH
+Si spoofeo el servidor DNS, se carga el DNS
+
+Isolato :OOOOOOOOOOOOOOO
+
+
+iptables -A INPUT -p tcp --dport 80 -m hashlimit --hash-limit-ipt
+
+iptables -A INPUT -p tcp --dport 22 -m hashlimit --hash-limit 1/min --hash-limit-mode srcip ....... --conntract --cstate NEW -j ACCEPT
+	-> permite estados NEW, 1 por minuto
+
+
+TRAFFIC SHAPING y PACKET SHAPING -> control de ancho de banda -> QoS
+
+REVERSE PROXIES -> es lo mismo que un proxy pero al reves
+	-> cuando alguien en internet accede a mis servidores, en vez de acceder a mis puertos 80 o 443, accede a los reverse proxys,
+		estos buscan lo que le piden y lo entregan
+
+Proxy	-> http
+	-> sock
+
+Son maquinas intermedias que cuando pido algo, se lo pido al proxy, lo trae, lo cachea y me lo da
+
+Herramientas de pruebas de carga -> jmetter, apache bench
+
+packit -b 0 -c6 -sh -d 10.11.48.128 -> SYN FLOOD
+
+hping3 -s -p 80 -float --algo-source x.x.x.x -> SYN FLOOD
+
+SNDP -> se securiza con PKI -> RA -> SLAAC
+
+-----------------------------------------------------------------------------
+20/11/2023
+
+DDoS
+
+airomon-ng start wlan0
+
+airodump-ng mon0
+	-> BSSID -> mac con la que se anuncia el punto de acceso
+	-> canal
+	-> nombre
+
+aireplay-ng -0 0 -a [MAC] -> deautentico a todo dios
+	               [MAC punto acceso] [MAC a deautenticar]
+
+
+802.11w -> proporciona a los puntos de acceso autenticacion y cifrado de las tramas de gestion, inhabilita el aireplay de antes	            
+
+HIPS / IPS 
+
+WIPS -> sistemas de prevencion de intrusiones de redes wifi
+	-> Cisco
+	-> Open WIPS-ng
+	-> Acrilic	-> monitorizar wifi pero con entorno grafico -> GALLEGA OSTIA
+		-> RSSI	-> medida de la potencia de la señal recibida de los puntos de acceso
+			-> 0 es la señal ideal (no existe)
+			-> -40 / -60 -> muy bueno
+			-> -60 -> bueno
+			-> < -70 -> perdida muy grande
+
+2.4 GHz	-> espectro de 2412 MHz - 2471 MHz
+	-> Lo reparte en canales -> mas o menos asi:	1	6	11
+						   2	   7
+						       3	      8
+						           4	          9
+						               5              10  
+
+5 GHz	-> No se solapan ya -> canales de 20 MHz
+	-> Se pueden unir canales de 20 MHz para formar otro de 40 MHz, dos de 40 MHz para hacer uno de 80 MHz, ...
+	-> 5180 MHz - 5825 MHz
+
+Estandares -> NO SABERSELOS DE MEMORIA
+	  -> 802.11 -> vinculados a redes wifi
+		-> 802.11a -> 5 GHz -> 54 Mbps (usando trucos y nunca son exactamente esos)
+		-> 802.11b -> 2.4 GHz -> 11 Mbps
+		-> 802.11g -> ...
+	-> wifi 5 -> 802.11acs -> 5 GHz -> 1.3 Gbps
+	-> wifi 6 -> Sistema adaptativo de señales
+
+ONISAMP -> metodologia de seguridad abierta en redes wifi -> DE LOS DE ACRILIC, GALLEGA OSTIA
+	 -> puntos a seguir para ver si esta bien securizada una red wifi
+
+wifi-hammer -> coge las wifis y todo dios sin wifi
+
+
+CLUSTERING
+
+White List -> cuando me atacan por DoS mirar si puedo crear una WL con clientes, ..., trafico legal
+
+TAPs -> sistemas que mirrorean todo el trafico que fluye por la red para procesarlo y determinar que trafico es legal y cual no
+
+Algunas empresas dan servicios cloud contra ataques DoS
+
+Servidores bien hammerizados soportan mejor un ataque DoS que uno normal
+
+Black List  -> RTBL (Real Time Black List)
+	-> Tira contra 50 bases de datos de reputacion y te da un analisis de la reputacion, podrias integrar RTBL en el firewall
+	-> RBLMon -> checkea determinado rango de direcciones y si alguna tiene reputacion baja, te avisa
+
+SPANHAUS -> SBL -> lista negra de estafetas de correo electronico
+	  -> XBL -> lista de IPs de internet que han estado infectadas, ... (se podria integrar con los firewalls)
+-------------------------------------------------------------------------------------------------------------------------------------------------
+PRACTICA 3
+
+1) 
+SSH -v -vvv -> para hacerlo muy verbose
+	- SSH_KNOWN_HOSTS -> entender que pasa y a que nivel esta pasando (maquina o usuario)
+	- Cifrado (default, disponibles) -> mirar los algoritmos disponibles en mi maquina para copiar archivos
+	- Autorizacion clave publica -> se puede crear en mi portatil o en la maquina debian, hacerlo desde usuario lsi,
+		me crea un fichero oculto .ssh en /home.
+		-> debian public private ssh y ya encuentro el comando (comando copyID forma buena, scp forma mala)
+			scp sobreescribe y copyID concatena
+		-> Desde donde quieres entrar, tiene que tener la privada
+		-> A donde te quieres conectar, tiene que tener la publica
+		-> Una vez que sabemos que funciona, podemos deshabilitar la entrada de usuario/contraseña
+	- Securizar un servicio (por ejemplo apache) (crear tunel ssh, es un comando)
+	- Securizar carpeta remota (dropbox)
+
+ojo con los usuarios, coger papel y boli
+
+traerle un jamon a carlos para la p3
+
+2) Apache
+
+No es un certificado autofirmado >:V -> el 90% de las bitacoras lo hacen mal, es montar la fabrica de moneda y timbre en nuestra maquina
+
+A la unidad certificadora hai que crearle otro par
+
+A apache le creo otro par
+
+En la configuracion hai que tener la publica, la privada y la cuñada? sus, parece que si
+
+Si llega una peticion al 443 (conexion segura) que se lleve por la rama segura el apache
+
+No se firman las privadas
+
+VPN)
+Una maquina hace de server y la otra cliente, necesito una nueva interfaz virtual
+
+El cliente le pide una IP al server, no usar 10.11 porque estaran duplicadas
+
+Se podrá hacer un ssh si se configura bien, puede que el ping funcione pero se caiga ssh, comprobarlo
+
+Hai que modificar los wrappers, revisar iptables y probarlo (si iptables esta en el arranque nos sacamos la minga)
+				no poner el printf argentino
+------------------------------------------------------------------------------------------------------------------------
+22/11/2023
+
+IPTABLES
+
+ip6tables
+
+ebtables -> reglas en capa 2 (MAC)
+
+arptables -> reglas en protocolo arp
+
+ipset -> definir conjuntos de direcciones para despues aplicar reglas sobre ese conjunto
+
+tipos reglas:
+	INPUT
+	OUTPUT
+	FORWARD -> reglas cuya IP destino no es mi maquina
+	MANGLE -> reglas para hacer modificaciones sobre los paquetes
+	NAT -> cambios de IP entre puertos
+	
+Cadena -> agrupacion de reglas (muy importante la secuencia), al activar una regla que dropea el paqute no se siguen leyendo las reglas
+
+Cadena PREROUTING -> INPUT -> se atiende la conexion -> OUTPUT -> POSTROUTING
+		    -> FORWARD (si no es para mi IP) -> POSTROUTING
+
+Nosotros practicamente siempre en INPUT y OUTPUT
+
+Tablas:
+	MANGLE -> todas las cadenas (PREROUTING, OUTPUT, INPUT, POSTROUTING, FORWARD)
+	NAT -> PREROUTING, OUTPUT, POSTROUTING
+	FILTER -> INPUT, OUTPUT, FORWARD
+
+Nosotros en practicas vamos a jugar con las reglas FILTER de INPUT y OUTPUT
+
+iptables -t [tabla] [comando] [cadena] [condicion] [accion]
+
+iptables -t FILTER -A INPUT -p TCP --dport 123 -j DROP|ACCEPT|REJECT -> dropea cualquier intento de meter paquetes en puerto 123
+
+diferencia entre DROP y REJECT:
+	DROP -> les dice a las otras maquinas que tengo configurado un firewall al dropear los paquetes
+	REJECT -> tira los paquetes y me permite responder con lo que quiera yo (por ejemplo con un RESET finjiendo ser un puerto
+			TCP cerrado)
+
+No hacer el firewall persistente, hacer uno que se ejecute a mano
+
+iptables	-F -> borra todas las reglas
+iptables	-X -> borra todas las cadenas
+	-P INPUT | OUTPUT | FORWARD DROP -> politicas por defecto (nada de venir con reglas sin politica por defecto a DROP)
+	-A INPUT | OUTPUT -i lo -j ACCEPT 
+	-A INPUT -s 10.11.48.123 -d 10.11.48.128 -p TCP --dport 514 -j ACCEPT -> si no se especifica una tabla por defecto va a FILTER
+				               -p UDP --dport 123 -j ACCEPT
+	
+	-A OUTPUT -s 10.11.48.128  -d 10.1148.123 -p TCP --sport 514 -j ACCEPT 	
+	-A INPUT -s [toda la red UDC con la mascara] -d 10.11.48.128 -p SSH --dport 22 -j ACCEPT
+	[añadir una pal dns]
+	[no se navega por un sevidor, dropear]
+	[añadir las maquinas del sources list para poder instalar cosas y actualizar el dispositivo, mirar su protocolo bla bla bla]
+	
+Preguntarle a carlos si aun hai que contemplar si tengo prometheus, grafana y node_exporter para el firewall
+
+El lunes nos contará como hacerlo con control de estado
+-------------------------------------------------------------------------------------
+27/11/2023
+
+NEW -> cuando se hace el sync
+
+ESTABLISHED -> ya establecida
+
+RELATED -> conexion que hace conexiones
+
+iptables -A INPUT -p tpc --dport 22 -s 10.11.48.123/24 -d 10.11.48.128 -m contrack --cstate NEW,ESTABLISHED -j ACCEPT
+iptables -A OUTPUT -p tcp --sport 22 -s 10.11.48.128 -d 10.11.48.123 -m contrack --cstate ESTABLISHED,RELATED -j ACCEPT
+
+Estas reglas funcionan cuando yo soy servidor, mi compañero tendria que poner INPUT con ESTABLISHED, RELATED y OUTPUT con NEW, ESTABLISHED
+
+Otra forma de hacerlo:
+En las reglas iniciales
+
+iptables -A INPUT -m conntrack --cstate ESTABLISHED, RELATED -j ACCEPT
+iptables -A OUTPUT bla bla bla todo igual
+
+De esta forma acepto todo lo que ya haya sido creado con un NEW, ahora solo tengo que poner una regla para cada NEW que de de alta
+
+Ojo porque hai firewalls de otros años que estan mal, hacen un combinado
+
+UDP si que hace control de estado pero diferente, se envia puerto origen IP origen, puerto destino IP destino, la primera vez lo marca como
+no respondido, cuando encuentra el paquete inverso, lo marca como atentido (se hace con el ESTABLISHED igualmente)
+
+iptables blabla 	-i ens33
+		-m multiport 22,80,443
+		
+iptables -j REJECT --reject-with tcp-rset
+iptables -j REJECT --reject-with icmp-port-unreacheable
+
+Se ponen al final para que no se ejecuten las reglas por defecto y se rechacen de esa forma
+
+iptables -nL --line-number
+
+NO PERSISTENTES, hacer un script
+
+Formas de hacerlo persistente: 
+
+En interfaces, post-up [mi script de firewall]
+
+apt install iptables-persistent
+
+iptables persistente > /etc/iptables/rules.v4
+
+systemctl [start/stop/...] iptables-persistent
+
+ip6tables-save > /___/rules.v6
+
+
+ip6tables -A INPUT -p tcp --dport 22 _________
+
+
+iptables -A INPUT -p tcp --dport 80 -m string string "/etc/passwd" -j LOG --log-ip-options --log-tcp-options --log-prefix "access passwd" -> genera un log si intentan acceder a mi fichero passwd
+
+iptables blablabla -j DROP
+
+
+iptables -A INPUT -p tcp --dport 22 -j LOG --log-prefix "INTENTO NO AUTORIZADO" --log-level 4
+
+En rsyslog:
+:msg contains "INTENTO NO AUTORIZADO" /etc/blabla -> al generar el log con iptables, rsyslog me mete el log en la carpeta que yo le diga 
+&stop
+
+
+NET FILTER
+
+Framework de nuestros sistemas que nos permite interaccionar con los paquetes de red
+
+Tienes varias utilidades:
+
+IPTABLES
+
+NFTABLES -> evolucion de iptables (mas actualizada)
+
+
+iptables -t filter -A FORWARD -s 10.11.48.x -d 10.11.48.y -p tcp --dport 514 -m conntrack --cstate NEW -j ACCEPT
+==
+nft add rule filter forward ip saddr 10.11.48.x daddr 10.11.48.y tcp dport 514 ct state NEW ACCEPT
+------------------------------------------------------------------------------------------------------------------
+PRACTICAS 
+
+6) netstat -putona -> que funcione todo
+	-tulpn
+rsyslog
+ntp
+ssh (en 4 y en 6)
+
+script:
+	-temporizador de reinicio de maquina  1 | 2 min
+	-borrar iptables
+	-politicas por defecto
+	-añadir reglas
+
+(solo para el dia a dia, despues no borramos)
+
+
+7) Lynis
+
+
+
+
+
+
+
+
+
+
+
+
+ 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

